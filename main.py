@@ -40,8 +40,8 @@ def _install_font():
         # โหลด font เข้า GDI (ไม่ต้องสิทธิ์ admin) เพื่อให้ tkinter เห็น
         try:
             import ctypes
-            FR_PRIVATE = 0x10
-            ctypes.windll.gdi32.AddFontResourceExW(src, FR_PRIVATE, 0)
+            # FR_PRIVATE (0x10) → process-private; use 0 so tkfont.families() sees it
+            ctypes.windll.gdi32.AddFontResourceExW(src, 0, 0)
         except Exception:
             pass
         # พยายาม copy เข้า Windows\Fonts ด้วย (ถ้ามีสิทธิ์)

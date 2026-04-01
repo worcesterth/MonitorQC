@@ -18,7 +18,10 @@ def _send_to_printer(path: str):
         if result.returncode != 0:
             subprocess.run(["open", path], check=True)
     elif system == "Windows":
-        os.startfile(path, "print")
+        try:
+            os.startfile(path, "print")
+        except OSError:
+            os.startfile(path)
     else:
         subprocess.run(["lp", path], check=True)
 
