@@ -61,6 +61,12 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
 
+        # ── Windows DPI fix ───────────────────────────────────────────────
+        # tkinter บน Windows ใช้ DPI จริงของจอ (96+) แทน 72 ของ macOS
+        # ทำให้ font ใหญ่กว่าที่ออกแบบไว้ → reset scaling ให้ตรงกับ macOS
+        if platform.system() == "Windows":
+            self.tk.call("tk", "scaling", 1.0)
+
         self.title("TG270 Monitor QC System")
         self.resizable(True, True)
         self.minsize(900, 600)
