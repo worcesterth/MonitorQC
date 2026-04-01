@@ -26,7 +26,7 @@ def thai_font(size: int = 14, weight: str = "normal") -> tuple:
     if system == "Darwin":
         families = ["TH Sarabun New", "TH SarabunNew", "Krungthep", "Thonburi", "Arial Unicode MS"]
     elif system == "Windows":
-        families = ["TH SarabunNew", "Browallia New", "Cordia New", "Tahoma"]
+        families = ["TH SarabunNew", "TH Sarabun New", "Browallia New", "Cordia New", "Tahoma"]
     else:
         families = ["Garuda", "Norasi", "DejaVu Sans"]
 

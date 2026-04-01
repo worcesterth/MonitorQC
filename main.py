@@ -4,18 +4,34 @@ from screens.base import BG_COLOR
 
 
 def _install_font():
-    """คัดลอก THSarabunNew.ttf เข้า ~/Library/Fonts/ บน macOS อัตโนมัติ"""
-    if platform.system() != "Darwin":
-        return
+    """โหลด THSarabunNew.ttf เข้าระบบ (macOS: copy → ~/Library/Fonts, Windows: GDI AddFontResource)"""
     import sys
     base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    here = base
-    src = os.path.join(here, "assets", "fonts", "THSarabunNew.ttf")
+    src  = os.path.join(base, "assets", "fonts", "THSarabunNew.ttf")
     if not os.path.exists(src):
         return
-    dst = os.path.expanduser("~/Library/Fonts/THSarabunNew.ttf")
-    if not os.path.exists(dst):
-        shutil.copy2(src, dst)
+
+    if platform.system() == "Darwin":
+        dst = os.path.expanduser("~/Library/Fonts/THSarabunNew.ttf")
+        if not os.path.exists(dst):
+            shutil.copy2(src, dst)
+
+    elif platform.system() == "Windows":
+        # โหลด font เข้า GDI (ไม่ต้องสิทธิ์ admin) เพื่อให้ tkinter เห็น
+        try:
+            import ctypes
+            FR_PRIVATE = 0x10
+            ctypes.windll.gdi32.AddFontResourceExW(src, FR_PRIVATE, 0)
+        except Exception:
+            pass
+        # พยายาม copy เข้า Windows\Fonts ด้วย (ถ้ามีสิทธิ์)
+        try:
+            font_dir = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Fonts")
+            dst = os.path.join(font_dir, "THSarabunNew.ttf")
+            if not os.path.exists(dst):
+                shutil.copy2(src, dst)
+        except Exception:
+            pass
 
 
 _install_font()
