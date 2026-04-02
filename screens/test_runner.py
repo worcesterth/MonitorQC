@@ -134,11 +134,11 @@ class TestRunnerScreen(BaseScreen):
 
         self.note_row = tk.Frame(body, bg=CARD_COLOR)
         self.note_row.pack(fill="x", pady=(8, 0))
-        tk.Label(self.note_row, text="หมายเหตุ (ถ้ามี):", font=thai_font(self.fs(20)),
+        tk.Label(self.note_row, text="หมายเหตุ (ถ้ามี):", font=thai_font(self.fs(22)),
                  bg="#F4F4F4", fg=TEXT_COLOR).pack(side="left")
         self.notes_var = tk.StringVar()
         tk.Entry(self.note_row, textvariable=self.notes_var,
-                 font=thai_font(self.fs(20)), bg="#F4F4F4", fg=TEXT_COLOR,
+                 font=thai_font(self.fs(22)), bg="#F4F4F4", fg=TEXT_COLOR,
                  relief="flat", bd=0, width=18).pack(side="left", padx=6)
 
         # ── ปุ่มล่าง ──────────────────────────────────────────────────
@@ -147,7 +147,7 @@ class TestRunnerScreen(BaseScreen):
 
         nav = tk.Frame(btn_bar, bg=CARD_COLOR)
         nav.pack(fill="x")
-        self.next_btn   = self.dark_btn(nav, "ถัดไป",    self._next,   fontsize=self.fs(26), width=10)
+        self.next_btn   = self.primary_btn(nav, "ถัดไป",    self._next,   fontsize=self.fs(26), width=10)
         self.prev_btn   = self.grey_btn(nav, "ก่อนหน้า", self._prev,   fontsize=self.fs(26), width=10)
         self.replay_btn = self.grey_btn(nav, "เล่นซ้ำ",  self._replay, fontsize=self.fs(26), width=10)
         self.next_btn.pack(side="right", padx=2)
@@ -372,10 +372,10 @@ class TestRunnerScreen(BaseScreen):
 
             tk.Label(self.channels_outer,
                      text="ระบุค่าที่ไม่ผ่าน (0–255 คั่นด้วยช่องว่าง):",
-                     font=thai_font(self.fs(18)), bg=CARD_COLOR, fg=TEXT_COLOR
+                     font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR
                      ).grid(row=0, column=0, sticky="w", pady=(4, 2))
             tk.Entry(self.channels_outer, textvariable=self._text_ch_var,
-                     font=thai_font(self.fs(18)), bg=ENTRY_BG, fg=TEXT_COLOR,
+                     font=thai_font(self.fs(22)), bg=ENTRY_BG, fg=TEXT_COLOR,
                      relief="sunken", bd=2, width=30
                      ).grid(row=1, column=0, sticky="w", padx=2, pady=(0, 4))
             self._show_channels(saved.get("result") == "fail")
@@ -393,7 +393,7 @@ class TestRunnerScreen(BaseScreen):
         saved_fail = saved.get("failed_channels", [])
 
         tk.Label(self.channels_outer, text="ระบุช่องที่มองไม่เห็น:",
-                 font=thai_font(self.fs(18)), bg=CARD_COLOR, fg=TEXT_COLOR
+                 font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR
                  ).grid(row=0, column=0, columnspan=9, sticky="w", pady=(4, 2))
 
         cols = 9
@@ -401,7 +401,7 @@ class TestRunnerScreen(BaseScreen):
             var = tk.BooleanVar(value=(i + 1) in saved_fail)
             tk.Checkbutton(
                 self.channels_outer, text=str(i + 1),
-                variable=var, font=thai_font(self.fs(16)),
+                variable=var, font=thai_font(self.fs(20)),
                 bg=CARD_COLOR, fg=TEXT_COLOR,
                 activebackground=CARD_COLOR, selectcolor=ENTRY_BG,
             ).grid(row=1 + i // cols, column=i % cols, sticky="w", padx=2)

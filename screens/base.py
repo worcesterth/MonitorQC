@@ -60,11 +60,9 @@ class BaseScreen(tk.Frame):
         self.app = app
         sw = app.winfo_screenwidth()
         sh = app.winfo_screenheight()
-        # Scale only on Windows; macOS UI was designed at native sizes already
-        if platform.system() == "Windows":
-            self._s = min(sw / _REF_W, sh / _REF_H)
-        else:
-            self._s = 1.0
+        # Keep original design sizes on all platforms (scaling caused distortion)
+        self._s = 1.0
+        _ = sw, sh  # screen size available if needed later
         self.CARD_W  = max(500, int(820 * self._s))
         self.CARD_H  = max(360, int(540 * self._s))
         self.CARD_HL = max(460, int(680 * self._s))
