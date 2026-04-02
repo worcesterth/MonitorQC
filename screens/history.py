@@ -75,12 +75,12 @@ def _show_calendar(root, anchor_widget, date_var: tk.StringVar):
                          bg=CARD_COLOR, fg=TEXT_COLOR, anchor="center")
     month_lbl.pack(side="left", expand=True)
 
-    next_lbl = tk.Label(hdr, text="›", font=_FONT_NAV, bg=CARD_COLOR,
-                        fg=TEXT_COLOR, cursor="hand2", padx=4, pady=4)
-    next_lbl.pack(side="right")
     next_yr  = tk.Label(hdr, text="»", font=_FONT_NAV, bg=CARD_COLOR,
                         fg=TEXT_COLOR, cursor="hand2", padx=4, pady=4)
     next_yr.pack(side="right")
+    next_lbl = tk.Label(hdr, text="›", font=_FONT_NAV, bg=CARD_COLOR,
+                        fg=TEXT_COLOR, cursor="hand2", padx=4, pady=4)
+    next_lbl.pack(side="right")
 
     tk.Frame(frame, bg=BORDER_CLR, height=1).pack(fill="x", pady=(0, 6))
 
