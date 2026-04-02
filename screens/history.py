@@ -64,17 +64,23 @@ def _show_calendar(root, anchor_widget, date_var: tk.StringVar):
     hdr = tk.Frame(frame, bg=CARD_COLOR)
     hdr.pack(fill="x", pady=(0, 6))
 
-    prev_lbl = tk.Label(hdr, text="◀", font=_FONT_NAV, bg=CARD_COLOR,
-                        fg=TEXT_COLOR, cursor="hand2", padx=8, pady=4)
+    prev_yr  = tk.Label(hdr, text="«", font=_FONT_NAV, bg=CARD_COLOR,
+                        fg=TEXT_COLOR, cursor="hand2", padx=4, pady=4)
+    prev_yr.pack(side="left")
+    prev_lbl = tk.Label(hdr, text="‹", font=_FONT_NAV, bg=CARD_COLOR,
+                        fg=TEXT_COLOR, cursor="hand2", padx=4, pady=4)
     prev_lbl.pack(side="left")
 
     month_lbl = tk.Label(hdr, text="", font=_FONT_HDR,
                          bg=CARD_COLOR, fg=TEXT_COLOR, anchor="center")
     month_lbl.pack(side="left", expand=True)
 
-    next_lbl = tk.Label(hdr, text="▶", font=_FONT_NAV, bg=CARD_COLOR,
-                        fg=TEXT_COLOR, cursor="hand2", padx=8, pady=4)
+    next_lbl = tk.Label(hdr, text="›", font=_FONT_NAV, bg=CARD_COLOR,
+                        fg=TEXT_COLOR, cursor="hand2", padx=4, pady=4)
     next_lbl.pack(side="right")
+    next_yr  = tk.Label(hdr, text="»", font=_FONT_NAV, bg=CARD_COLOR,
+                        fg=TEXT_COLOR, cursor="hand2", padx=4, pady=4)
+    next_yr.pack(side="right")
 
     tk.Frame(frame, bg=BORDER_CLR, height=1).pack(fill="x", pady=(0, 6))
 
@@ -134,8 +140,18 @@ def _show_calendar(root, anchor_widget, date_var: tk.StringVar):
         state["month"], state["year"] = m, y
         _build(y, m)
 
+    def _prev_year():
+        state["year"] -= 1
+        _build(state["year"], state["month"])
+
+    def _next_year():
+        state["year"] += 1
+        _build(state["year"], state["month"])
+
+    prev_yr.bind("<ButtonRelease-1>",  lambda _: _prev_year())
     prev_lbl.bind("<ButtonRelease-1>", lambda _: _prev())
     next_lbl.bind("<ButtonRelease-1>", lambda _: _next())
+    next_yr.bind("<ButtonRelease-1>",  lambda _: _next_year())
 
     # ── ปุ่มล้างวันที่ ──────────────────────────────────────────────────
     tk.Frame(frame, bg=BORDER_CLR, height=1).pack(fill="x", pady=(6, 4))
@@ -318,7 +334,7 @@ class HistoryScreen(BaseScreen):
 
     @staticmethod
     def _parse_date(text: str) -> str:
-        """แปลง DD/MM/YYYY หรือ D/M/YYYY → YYYYMMDD สำหรับ SQLite; คืน "" ถ้าไม่ถูกต้อง"""
+        """แปลง DD/MM/YYYY → YYYY-MM-DD สำหรับ SQLite; คืน "" ถ้าไม่ถูกต้อง"""
         text = text.strip()
         if not text:
             return ""
@@ -327,7 +343,7 @@ class HistoryScreen(BaseScreen):
             if len(parts) != 3:
                 return ""
             d, m, y = parts
-            return f"{int(y):04d}{int(m):02d}{int(d):02d}"
+            return f"{int(y):04d}-{int(m):02d}-{int(d):02d}"
         except Exception:
             return ""
 
