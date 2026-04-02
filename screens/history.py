@@ -1,3 +1,5 @@
+import calendar
+import datetime
 import os
 import platform
 import subprocess
@@ -5,10 +7,133 @@ import tempfile
 import tkinter as tk
 from tkinter import ttk
 from screens.base import (
-    BaseScreen, BG_COLOR, CARD_COLOR, TEXT_COLOR, BORDER_CLR, thai_font,
+    BaseScreen, BG_COLOR, CARD_COLOR, TEXT_COLOR, BORDER_CLR, BTN_BG, BTN_ACTIVE, thai_font,
 )
 from config import PERIODS, PERIOD_LABELS
 import database
+
+
+def _show_calendar(root, anchor_widget, date_var: tk.StringVar):
+    """เปิด popup calendar ใกล้ anchor_widget; date_var รับค่า DD/MM/YYYY"""
+    # อ่านค่าเดิมถ้ามี
+    try:
+        d, m, y = date_var.get().split("/")
+        sel = datetime.date(int(y), int(m), int(d))
+    except Exception:
+        sel = datetime.date.today()
+
+    state = {"year": sel.year, "month": sel.month, "selected": sel}
+
+    popup = tk.Toplevel(root)
+    popup.overrideredirect(True)
+    popup.configure(bg=BORDER_CLR)
+    popup.resizable(False, False)
+
+    # วางตำแหน่งใต้ anchor widget
+    popup.update_idletasks()
+    ax = anchor_widget.winfo_rootx()
+    ay = anchor_widget.winfo_rooty() + anchor_widget.winfo_height()
+    popup.geometry(f"+{ax}+{ay}")
+
+    # ปิด popup เมื่อคลิกนอก
+    def _close_if_outside(e):
+        wx, wy = popup.winfo_rootx(), popup.winfo_rooty()
+        ww, wh = popup.winfo_width(), popup.winfo_height()
+        if not (wx <= e.x_root <= wx + ww and wy <= e.y_root <= wy + wh):
+            popup.destroy()
+
+    root.bind("<Button-1>", _close_if_outside, add=True)
+    popup.bind("<Destroy>", lambda _: root.unbind("<Button-1>"))
+
+    frame = tk.Frame(popup, bg=CARD_COLOR, padx=4, pady=4)
+    frame.pack(padx=1, pady=1)
+
+    _MONTHS_TH = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
+                  "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
+                  "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+
+    # ── header row ────────────────────────────────────────────────────────
+    hdr = tk.Frame(frame, bg=CARD_COLOR)
+    hdr.pack(fill="x", pady=(0, 4))
+
+    prev_lbl = tk.Label(hdr, text="◀", font=thai_font(14), bg=CARD_COLOR,
+                        fg=TEXT_COLOR, cursor="hand2")
+    prev_lbl.pack(side="left", padx=4)
+
+    month_lbl = tk.Label(hdr, text="", font=thai_font(16, "bold"),
+                         bg=CARD_COLOR, fg=TEXT_COLOR, width=16, anchor="center")
+    month_lbl.pack(side="left", expand=True)
+
+    next_lbl = tk.Label(hdr, text="▶", font=thai_font(14), bg=CARD_COLOR,
+                        fg=TEXT_COLOR, cursor="hand2")
+    next_lbl.pack(side="right", padx=4)
+
+    day_frame = tk.Frame(frame, bg=CARD_COLOR)
+    day_frame.pack()
+
+    def _build(year, month):
+        for w in day_frame.winfo_children():
+            w.destroy()
+        month_lbl.configure(text=f"{_MONTHS_TH[month]} {year + 543}")
+
+        for col, d in enumerate(["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"]):
+            tk.Label(day_frame, text=d, font=thai_font(14, "bold"),
+                     bg=CARD_COLOR, fg="#666666", width=3, anchor="center").grid(
+                row=0, column=col, padx=1, pady=1)
+
+        today = datetime.date.today()
+        for r, week in enumerate(calendar.monthcalendar(year, month), start=1):
+            for c, day in enumerate(week):
+                if day == 0:
+                    tk.Label(day_frame, text="", bg=CARD_COLOR, width=3).grid(
+                        row=r, column=c, padx=1, pady=1)
+                    continue
+                this_date = datetime.date(year, month, day)
+                is_sel   = (this_date == state["selected"])
+                is_today = (this_date == today)
+                bg = BTN_BG    if is_sel   else ("#ddeeff" if is_today else CARD_COLOR)
+                fg = "#ffffff" if is_sel   else TEXT_COLOR
+                btn = tk.Label(day_frame, text=str(day), font=thai_font(14),
+                               bg=bg, fg=fg, width=3, anchor="center",
+                               relief="flat", cursor="hand2")
+                btn.grid(row=r, column=c, padx=1, pady=1)
+
+                def _pick(dt=this_date):
+                    state["selected"] = dt
+                    date_var.set(f"{dt.day:02d}/{dt.month:02d}/{dt.year}")
+                    popup.destroy()
+
+                _bg_sel, _bg_norm = BTN_BG, CARD_COLOR
+                btn.bind("<ButtonRelease-1>", lambda _, fn=_pick: fn())
+                btn.bind("<Enter>",  lambda _, b=btn, s=is_sel: b.configure(
+                    bg=BTN_ACTIVE if s else "#f0f0f0"))
+                btn.bind("<Leave>",  lambda _, b=btn, s=is_sel: b.configure(
+                    bg=_bg_sel if s else _bg_norm))
+
+    def _prev():
+        m, y = state["month"] - 1, state["year"]
+        if m < 1: m, y = 12, y - 1
+        state["month"], state["year"] = m, y
+        _build(y, m)
+
+    def _next():
+        m, y = state["month"] + 1, state["year"]
+        if m > 12: m, y = 1, y + 1
+        state["month"], state["year"] = m, y
+        _build(y, m)
+
+    prev_lbl.bind("<ButtonRelease-1>", lambda _: _prev())
+    next_lbl.bind("<ButtonRelease-1>", lambda _: _next())
+
+    # ปุ่มล้างวันที่
+    clear_bar = tk.Frame(frame, bg=CARD_COLOR)
+    clear_bar.pack(fill="x", pady=(4, 0))
+    clear_lbl = tk.Label(clear_bar, text="ล้างวันที่", font=thai_font(13),
+                         bg=CARD_COLOR, fg="#0055cc", cursor="hand2")
+    clear_lbl.pack(side="right", padx=4)
+    clear_lbl.bind("<ButtonRelease-1>", lambda _: [date_var.set(""), popup.destroy()])
+
+    _build(state["year"], state["month"])
 
 
 def _send_to_printer(path: str):
@@ -48,17 +173,30 @@ class HistoryScreen(BaseScreen):
         tk.Label(search_bar, text="วันที่:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.date_from_var = tk.StringVar()
-        tk.Entry(search_bar, textvariable=self.date_from_var,
-                 font=thai_font(self.fs(26)), width=11,
-                 bg="#ffffff", relief="sunken", bd=2).pack(side="left", padx=(4, 2))
+        date_from_entry = tk.Entry(search_bar, textvariable=self.date_from_var,
+                                   font=thai_font(self.fs(26)), width=11,
+                                   bg="#ffffff", relief="sunken", bd=2, state="readonly",
+                                   readonlybackground="#ffffff")
+        date_from_entry.pack(side="left", padx=(4, 1))
+        cal_from = tk.Label(search_bar, text="📅", font=thai_font(self.fs(22)),
+                            bg=BG_COLOR, cursor="hand2")
+        cal_from.pack(side="left", padx=(0, 8))
+        cal_from.bind("<ButtonRelease-1>",
+                      lambda _: _show_calendar(self.app, cal_from, self.date_from_var))
+
         tk.Label(search_bar, text="ถึง", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(2, 2))
+                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(0, 2))
         self.date_to_var = tk.StringVar()
-        tk.Entry(search_bar, textvariable=self.date_to_var,
-                 font=thai_font(self.fs(26)), width=11,
-                 bg="#ffffff", relief="sunken", bd=2).pack(side="left", padx=(2, 4))
-        tk.Label(search_bar, text="(ว/ด/ป)", font=thai_font(self.fs(20)),
-                 bg=BG_COLOR, fg="#888888").pack(side="left", padx=(0, 12))
+        date_to_entry = tk.Entry(search_bar, textvariable=self.date_to_var,
+                                 font=thai_font(self.fs(26)), width=11,
+                                 bg="#ffffff", relief="sunken", bd=2, state="readonly",
+                                 readonlybackground="#ffffff")
+        date_to_entry.pack(side="left", padx=(2, 1))
+        cal_to = tk.Label(search_bar, text="📅", font=thai_font(self.fs(22)),
+                          bg=BG_COLOR, cursor="hand2")
+        cal_to.pack(side="left", padx=(0, 12))
+        cal_to.bind("<ButtonRelease-1>",
+                    lambda _: _show_calendar(self.app, cal_to, self.date_to_var))
 
         tk.Label(search_bar, text="รอบ:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
