@@ -13,6 +13,12 @@ class UserListScreen(BaseScreen):
 
         self.card_header(card, "รายชื่อผู้ใช้งาน", size=self.fs(24))
 
+        # ── ปุ่มล่าง (pack ก่อน list เพื่อให้ขอบล่างจอง space ก่อน) ──────────
+        btn_row = tk.Frame(card, bg=CARD_COLOR)
+        btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
+        self.back_btn(btn_row, "ย้อนกลับ", lambda: app.show("register"),
+                      fontsize=self.fs(24), width=12).pack(side="left")
+
         # header row
         hdr = tk.Frame(card, bg="#FFFFFF")
         hdr.pack(fill="x", padx=16, pady=(12, 0))
@@ -92,12 +98,6 @@ class UserListScreen(BaseScreen):
         self._panel_err = tk.Label(self._panel, text="", font=thai_font(self.fs(20)),
                                    bg="#ebebeb", fg="#cc0000")
         self._panel_err.pack(anchor="w", padx=12, pady=(0, 6))
-
-        # ── ปุ่มล่าง ──────────────────────────────────────────────────────────
-        btn_row = tk.Frame(card, bg=CARD_COLOR)
-        btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
-        self.back_btn(btn_row, "ย้อนกลับ", lambda: app.show("register"),
-                      fontsize=self.fs(24), width=12).pack(side="left")
 
         # state
         self._pending_user: dict | None = None

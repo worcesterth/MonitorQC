@@ -13,6 +13,10 @@ class RegisterScreen(BaseScreen):
 
         self.card_header(card, "ลงทะเบียน", size=self.fs(24))
 
+        # ── ปุ่มล่าง (pack ก่อน body เพื่อให้ขอบล่างจอง space ก่อน) ─────────────
+        btn_row = tk.Frame(card, bg=CARD_COLOR)
+        btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
+
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=36, pady=16)
 
@@ -91,9 +95,7 @@ class RegisterScreen(BaseScreen):
         self.user_msg = tk.Label(body, text="", font=thai_font(self.fs(20)), bg=CARD_COLOR, fg="#cc0000")
         self.user_msg.pack(anchor="w", pady=(2, 0))
 
-        # ── ปุ่มล่าง ──────────────────────────────────────────────────────────
-        btn_row = tk.Frame(card, bg=CARD_COLOR)
-        btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
+        # ── ปุ่มล่าง (ถูก pack ก่อน body แล้ว ด้านบน) ────────────────────────────
         self.primary_btn(btn_row, "เพิ่มผู้ใช้",     self._add_user,   fontsize=self.fs(24), width=14).pack(side="right", padx=4)
         self.primary_btn(btn_row, "ดูรายชื่อผู้ใช้", self._show_users, fontsize=self.fs(24), width=14).pack(side="right", padx=4)
         self.back_btn(btn_row, "ย้อนกลับ",         self._back,       fontsize=self.fs(24), width=12).pack(side="left",  padx=4)
