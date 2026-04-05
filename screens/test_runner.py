@@ -109,7 +109,7 @@ class TestRunnerScreen(BaseScreen):
         body = tk.Frame(self.card_win, bg=CARD_COLOR)
         body.pack(fill="x", expand=False, padx=12, pady=8)
 
-        self.item_lbl = tk.Label(body, text="", font=thai_font(self.fs(26), "bold"),
+        self.item_lbl = tk.Label(body, text="", font=thai_font(self.fs(26)),
                                  bg=CARD_COLOR, fg=TEXT_COLOR,
                                  wraplength=int(520 * self._s), justify="left", anchor="w")
         self.item_lbl.pack(anchor="w", pady=(0, 8))
