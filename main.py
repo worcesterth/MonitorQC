@@ -1,7 +1,14 @@
 import tkinter as tk
-import os, shutil, platform
-import os
-print("PID:", os.getpid())
+import os, shutil, platform, sys, traceback
+
+# เขียน error log ไว้ที่ Desktop เมื่อ crash
+def _excepthook(exc_type, exc_value, exc_tb):
+    log_path = os.path.join(os.path.expanduser("~"), "Desktop", "DesktopQC_error.txt")
+    with open(log_path, "w", encoding="utf-8") as f:
+        traceback.print_exception(exc_type, exc_value, exc_tb, file=f)
+    raise exc_value
+
+sys.excepthook = _excepthook
 
 def _fix_windows_dpi():
     """แก้ DPI scaling บน Windows ไม่ให้ขยาย UI อัตโนมัติ"""
