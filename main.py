@@ -38,11 +38,14 @@ def _install_font():
             shutil.copy2(src, dst)
 
     elif platform.system() == "Windows":
-        # โหลด font เข้า GDI (ไม่ต้องสิทธิ์ admin) เพื่อให้ tkinter เห็น
+        # โหลด font เข้า GDI แบบ public เพื่อให้ Uniscribe render Thai combining chars ถูกต้อง
         try:
             import ctypes
-            # FR_PRIVATE (0x10) → process-private
-            ctypes.windll.gdi32.AddFontResourceExW(ctypes.c_wchar_p(src), 0x10, 0)
+            ctypes.windll.gdi32.AddFontResourceExW(ctypes.c_wchar_p(src), 0, 0)
+            # แจ้ง Windows ว่ามี font ใหม่
+            HWND_BROADCAST = 0xFFFF
+            WM_FONTCHANGE  = 0x001D
+            ctypes.windll.user32.SendMessageW(HWND_BROADCAST, WM_FONTCHANGE, 0, 0)
         except Exception as e:
             print(f"Windows font load error: {e}")
 
