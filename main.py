@@ -1,14 +1,7 @@
 import tkinter as tk
-import os, shutil, platform, sys, traceback
-
-# เขียน error log ไว้ที่ Desktop เมื่อ crash
-def _excepthook(exc_type, exc_value, exc_tb):
-    log_path = os.path.join(os.path.expanduser("~"), "Desktop", "DesktopQC_error.txt")
-    with open(log_path, "w", encoding="utf-8") as f:
-        traceback.print_exception(exc_type, exc_value, exc_tb, file=f)
-    raise exc_value
-
-sys.excepthook = _excepthook
+import os, shutil, platform
+import os
+print("PID:", os.getpid())
 
 def _fix_windows_dpi():
     """แก้ DPI scaling บน Windows ไม่ให้ขยาย UI อัตโนมัติ"""
@@ -45,14 +38,11 @@ def _install_font():
             shutil.copy2(src, dst)
 
     elif platform.system() == "Windows":
-        # โหลด font เข้า GDI แบบ public เพื่อให้ Uniscribe render Thai combining chars ถูกต้อง
+        # โหลด font เข้า GDI (ไม่ต้องสิทธิ์ admin) เพื่อให้ tkinter เห็น
         try:
             import ctypes
-            ctypes.windll.gdi32.AddFontResourceExW(ctypes.c_wchar_p(src), 0, 0)
-            # แจ้ง Windows ว่ามี font ใหม่
-            HWND_BROADCAST = 0xFFFF
-            WM_FONTCHANGE  = 0x001D
-            ctypes.windll.user32.SendMessageW(HWND_BROADCAST, WM_FONTCHANGE, 0, 0)
+            # FR_PRIVATE (0x10) → process-private
+            ctypes.windll.gdi32.AddFontResourceExW(ctypes.c_wchar_p(src), 0x10, 0)
         except Exception as e:
             print(f"Windows font load error: {e}")
 
