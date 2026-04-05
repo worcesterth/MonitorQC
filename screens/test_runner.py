@@ -195,7 +195,7 @@ class TestRunnerScreen(BaseScreen):
         self.item_lbl.configure(text=display)
         group_q = item.get("group_title_Q") or item.get("group_title", "")
         self._group_title_lbl.configure(text=group_q)
-        self.card_win.title(group_q)
+        self.card_win.title(item.get("group_title_Q", ""))
         self._draw_badge(f"ข้อ {idx+1}/{total}")
 
         saved = session.get("answers", {}).get(item["item_id"], {})
