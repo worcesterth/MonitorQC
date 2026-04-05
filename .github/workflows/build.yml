@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build App
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
 
     steps:
@@ -46,3 +46,41 @@ jobs:
         with:
           name: DesktopQC-windows
           path: dist/DesktopQC.exe
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pillow reportlab openpyxl pyinstaller
+
+      - name: Build macOS App
+        run: |
+          pyinstaller --noconfirm --onedir --windowed \
+            --name "DesktopQC" \
+            --icon "assets/logo/AppIcon.icns" \
+            --add-data "assets:assets" \
+            --add-data "screens:screens" \
+            --add-data "reports:reports" \
+            --hidden-import "PIL._tkinter_finder" \
+            main.py
+
+      - name: Zip .app bundle
+        run: |
+          cd dist
+          zip -r DesktopQC-macos.zip DesktopQC.app
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DesktopQC-macos
+          path: dist/DesktopQC-macos.zip
