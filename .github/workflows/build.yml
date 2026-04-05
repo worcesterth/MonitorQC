@@ -32,17 +32,25 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller --noconfirm --onefile --windowed `
+          pyinstaller --noconfirm --onedir --windowed `
             --name "DesktopQC" `
             --icon "app_icon.ico" `
             --add-data "assets;assets" `
             --add-data "screens;screens" `
             --add-data "reports;reports" `
             --hidden-import "PIL._tkinter_finder" `
+            --hidden-import "tkinter" `
+            --hidden-import "tkinter.ttk" `
+            --hidden-import "tkinter.font" `
+            --collect-submodules "PIL" `
+            --collect-submodules "reportlab" `
             main.py
 
-      - name: Upload EXE artifact
+      - name: Zip output folder
+        run: Compress-Archive -Path dist\DesktopQC -DestinationPath dist\DesktopQC-windows.zip
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: DesktopQC-windows
-          path: dist/DesktopQC.exe
+          path: dist/DesktopQC-windows.zip
