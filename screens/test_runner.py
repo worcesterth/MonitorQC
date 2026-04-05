@@ -85,18 +85,22 @@ class TestRunnerScreen(BaseScreen):
         self.card_win.withdraw()
 
         # ── แถบบนสุด: group_title_Q + badge ข้อ X/Y มุมขวาบน ───────────
-        top_bar = tk.Frame(self.card_win, bg="#474747")
-        top_bar.pack(fill="x")
+        _BAR_H = 50
+        _BW, _BH, _BR = 110, 34, 11
 
-        _BW, _BH, _BR = int(110 * self._s), int(34 * self._s), int(11 * self._s)
+        top_bar = tk.Frame(self.card_win, bg="#474747", height=_BAR_H)
+        top_bar.pack(fill="x")
+        top_bar.pack_propagate(False)
+
+        self._group_title_lbl = tk.Label(top_bar, text="",
+                                         font=thai_font(self.fs(20), "bold"),
+                                         bg="#474747", fg="#FFFFFF", anchor="w")
+        self._group_title_lbl.place(x=12, rely=0.5, anchor="w",
+                                    relwidth=1.0, width=-(_BW + 24))
+
         self._badge_cvs = tk.Canvas(top_bar, width=_BW, height=_BH,
                                     bg="#474747", highlightthickness=0)
-        self._badge_cvs.pack(side="right", padx=10, pady=8)
-
-        self._group_title_lbl = tk.Label(top_bar, text="", font=thai_font(self.fs(20), "bold"),
-                                         bg="#474747", fg="#FFFFFF",
-                                         anchor="w", padx=12)
-        self._group_title_lbl.pack(side="left", fill="x", expand=True, pady=8)
+        self._badge_cvs.place(relx=1.0, rely=0.5, anchor="e", x=-10)
 
         def _draw_badge(text: str):
             self._badge_cvs.delete("all")
@@ -189,7 +193,7 @@ class TestRunnerScreen(BaseScreen):
         title     = item.get("title", "")
         display   = f"{title}: {criterion}" if criterion else title
         self.item_lbl.configure(text=display)
-        group_q = item.get("group_title_Q", "")
+        group_q = item.get("group_title_Q") or item.get("group_title", "")
         self._group_title_lbl.configure(text=group_q)
         self.card_win.title(group_q)
         self._draw_badge(f"ข้อ {idx+1}/{total}")
