@@ -92,12 +92,6 @@ class TestRunnerScreen(BaseScreen):
         top_bar.pack(fill="x")
         top_bar.pack_propagate(False)
 
-        self._group_title_lbl = tk.Label(top_bar, text="",
-                                         font=thai_font(self.fs(20), "bold"),
-                                         bg="#474747", fg="#FFFFFF", anchor="w")
-        self._group_title_lbl.place(x=12, rely=0.5, anchor="w",
-                                    relwidth=1.0, width=-(_BW + 24))
-
         self._badge_cvs = tk.Canvas(top_bar, width=_BW, height=_BH,
                                     bg="#474747", highlightthickness=0)
         self._badge_cvs.place(relx=1.0, rely=0.5, anchor="e", x=-10)
@@ -193,8 +187,6 @@ class TestRunnerScreen(BaseScreen):
         title     = item.get("title", "")
         display   = f"{title}: {criterion}" if criterion else title
         self.item_lbl.configure(text=display)
-        group_q = item.get("group_title_Q") or item.get("group_title", "")
-        self._group_title_lbl.configure(text=group_q)
         self.card_win.title(item.get("group_title_Q", ""))
         self._draw_badge(f"ข้อ {idx+1}/{total}")
 
