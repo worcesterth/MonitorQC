@@ -84,15 +84,19 @@ class TestRunnerScreen(BaseScreen):
         self.card_win.minsize(int(600 * self._s), int(360 * self._s))
         self.card_win.withdraw()
 
-        # ── แถบบนสุด: ชื่อกลุ่ม + badge ข้อ X/Y มุมขวาบน ────────────
-        top_bar = tk.Frame(self.card_win, bg="#FFFFFF", height=int(46 * self._s))
+        # ── แถบบนสุด: group_title_Q + badge ข้อ X/Y มุมขวาบน ───────────
+        top_bar = tk.Frame(self.card_win, bg="#474747")
         top_bar.pack(fill="x")
-        top_bar.pack_propagate(False)
 
         _BW, _BH, _BR = int(110 * self._s), int(34 * self._s), int(11 * self._s)
         self._badge_cvs = tk.Canvas(top_bar, width=_BW, height=_BH,
-                                    bg="#F4F4F4", highlightthickness=0)
-        self._badge_cvs.pack(side="right", padx=10, pady=6)
+                                    bg="#474747", highlightthickness=0)
+        self._badge_cvs.pack(side="right", padx=10, pady=8)
+
+        self._group_title_lbl = tk.Label(top_bar, text="", font=thai_font(self.fs(20), "bold"),
+                                         bg="#474747", fg="#FFFFFF",
+                                         anchor="w", padx=12)
+        self._group_title_lbl.pack(side="left", fill="x", expand=True, pady=8)
 
         def _draw_badge(text: str):
             self._badge_cvs.delete("all")
@@ -124,7 +128,8 @@ class TestRunnerScreen(BaseScreen):
                 q_row, text=txt, variable=self._answer_var,
                 value=val, font=thai_font(self.fs(26)),
                 bg=CARD_COLOR, fg=TEXT_COLOR,
-                activebackground=CARD_COLOR, selectcolor=ENTRY_BG,
+                activebackground=CARD_COLOR, selectcolor=CARD_COLOR,
+                tristatevalue="none",
                 command=self._on_answer,
             ).pack(side="left", padx=16)
 
@@ -184,7 +189,9 @@ class TestRunnerScreen(BaseScreen):
         title     = item.get("title", "")
         display   = f"{title}: {criterion}" if criterion else title
         self.item_lbl.configure(text=display)
-        self.card_win.title(item.get("group_title", ""))
+        group_q = item.get("group_title_Q", "")
+        self._group_title_lbl.configure(text=group_q)
+        self.card_win.title(group_q)
         self._draw_badge(f"ข้อ {idx+1}/{total}")
 
         saved = session.get("answers", {}).get(item["item_id"], {})
