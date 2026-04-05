@@ -70,11 +70,8 @@ class LoginScreen(BaseScreen):
                                                   padx=(0, 10), pady=8)
         self._all_names: list[str] = []
         self.name_combo = ttk.Combobox(form, style="Login.TCombobox",
-                                       font=val_font, width=32)
+                                       font=val_font, width=32, state="readonly")
         self.name_combo.grid(row=2, column=1, sticky="w", pady=8)
-        self._filter_job = None
-        self.name_combo.bind("<KeyRelease>", self._filter_names)
-        self.name_combo.bind("<<ComboboxSelected>>", lambda _: self.name_combo.icursor("end"))
 
         # ── รหัสผ่าน ──────────────────────────────────────────────────────────
         tk.Label(form, text="รหัสผ่าน :", font=lbl_font, bg=CARD_COLOR,
@@ -99,23 +96,6 @@ class LoginScreen(BaseScreen):
         self.back_btn(btn_row, "ย้อนกลับ", self._back, fontsize=self.fs(26), width=12).pack(side="right", padx=4)
 
     # ── helpers ───────────────────────────────────────────────────────────────
-
-    def _filter_names(self, event=None):
-        if event and event.keysym in ("Return", "Escape", "Down", "Up", "Tab"):
-            return
-        typed = self.name_combo.get().lower()
-        filtered = [n for n in self._all_names if typed in n.lower()]
-        self.name_combo["values"] = filtered if filtered else self._all_names
-        if self._filter_job:
-            self.after_cancel(self._filter_job)
-        self._filter_job = self.after(200, self._open_dropdown)
-
-    def _open_dropdown(self):
-        self._filter_job = None
-        try:
-            self.name_combo.event_generate("<Down>")
-        except Exception:
-            pass
 
     def on_show(self, **_):
         session = self.app.session
@@ -148,8 +128,9 @@ class LoginScreen(BaseScreen):
         self.error_lbl.configure(text="")
 
         now = datetime.now()
+        thai_year = now.year + 543
         self.dt_lbl.configure(
-            text=f"วันที่และเวลาในการทดสอบ : {now.strftime('%d/%m/%Y  %H:%M:%S')}")
+            text=f"วันที่และเวลาในการทดสอบ : {now.strftime('%d/%m/')}{thai_year}  {now.strftime('%H:%M:%S')}")
         session["eval_datetime"] = now.strftime("%Y-%m-%d %H:%M:%S")
 
     # ── actions ───────────────────────────────────────────────────────────────

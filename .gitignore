@@ -1,9 +1,12 @@
 __pycache__/
 *.py[cod]
 *.pyo
-data/
-.DS_Store
 build/
 dist/
 *.spec
-qc_data.db
+data/screenqc.db
+config copy.py
+ตารางผล*.xlsx
+โปรแกรมตรวจคุณภาพหน้าจอ*
+ตารางผล*.xlsx
+โปรแกรมตรวจคุณภาพหน้าจอ*

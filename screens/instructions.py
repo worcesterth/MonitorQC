@@ -47,6 +47,7 @@ class InstructionsScreen(BaseScreen):
                 items.append({**item,
                                "group_id":    group["group_id"],
                                "group_title": group["group_title"],
+                               "group_title_Q": group.get("group_title_Q", ""),
                                "image_index": idx})
                 idx += 1
 

@@ -97,6 +97,7 @@ class HistoryResultScreen(BaseScreen):
         if not ev:
             return
 
+        import datetime
         import database as _db
         type_map   = {"diagnostic": "Diagnostic", "modality": "Modality", "clinic": "Clinical Review"}
         period_map = {"monthly": "รายเดือน", "quarterly": "ราย 3 เดือน", "annual": "ประจำปี"}
@@ -105,8 +106,16 @@ class HistoryResultScreen(BaseScreen):
         self._current_rank = _db.get_eval_rank(ev.get("screen_type", ""), ev.get("period", ""), ev["id"])
         rank = self._current_rank
         baseline_mark = "  ★ Baseline" if ev.get("is_baseline") else ""
+        
+        eval_dt_str = ev.get('eval_datetime', '')
+        try:
+            dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+            display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{dt_obj.year + 543} {dt_obj.strftime('%H:%M:%S')}"
+        except Exception:
+            display_date = eval_dt_str
+
         self.info_lbl.configure(
-            text=f"โรงพยาบาล: {ev.get('hospital_name','')}  |  ผู้ประเมิน: {ev.get('evaluator_name','')}  |  ครั้งที่ {rank}  |  ประเภท: {stype}  |  รอบ: {period}  |  วันที่: {ev.get('eval_datetime','')}{baseline_mark}"
+            text=f"โรงพยาบาล: {ev.get('hospital_name','')}  |  ผู้ประเมิน: {ev.get('evaluator_name','')}  |  ครั้งที่ {rank}  |  ประเภท: {stype}  |  รอบ: {period}  |  วันที่: {display_date}{baseline_mark}"
         )
 
         # rebuild table from TEST_CONFIG
@@ -191,6 +200,7 @@ class HistoryResultScreen(BaseScreen):
     def _compare(self):
         from tkinter import messagebox
         import database
+        import datetime
         from screens.base import CARD_COLOR, TEXT_COLOR, BORDER_CLR, thai_font, ENTRY_BG
 
         ev = self.app.session.get("history_eval")
@@ -235,7 +245,12 @@ class HistoryResultScreen(BaseScreen):
         lb.pack(side="left", fill="both", expand=True)
 
         for e in prev_evals:
-            lb.insert("end", f"ครั้งที่ {e['rank']}:  {e['eval_datetime']}  {e['evaluator_name']}")
+            try:
+                dt_obj = datetime.datetime.strptime(e['eval_datetime'], "%Y-%m-%d %H:%M:%S")
+                disp_dt = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{dt_obj.year + 543} {dt_obj.strftime('%H:%M:%S')}"
+            except Exception:
+                disp_dt = e['eval_datetime']
+            lb.insert("end", f"ครั้งที่ {e['rank']}:  {disp_dt}  {e['evaluator_name']}")
 
         default_idx = len(prev_evals) - 1
         lb.selection_set(default_idx)

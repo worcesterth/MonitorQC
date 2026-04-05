@@ -12,7 +12,7 @@ PERIODS = {
 
 PERIOD_LABELS = {
     "monthly":   "การประเมินประจำเดือน",
-    "quarterly": "การประเมินราย 3 เดือน",
+    "quarterly": "การประเมินประจำ 3 เดือน",
     "annual":    "การประเมินประจำปี",
 }
 
@@ -29,7 +29,9 @@ TEST_CONFIG = {
         "monthly": [
             {
                 "group_id":    "diag_lum_m",
-                "group_title": "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                
+                "group_title":   "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title_Q": "Qualitative luminance response",
                 "items": [
                     {
                         "item_id":        "diag_lum_patches_m",
@@ -55,7 +57,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_spatial_m",
-                "group_title": "2) การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title":   "2) การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title_Q": "Qualitative spatial resolution",
                 "items": [
                     {
                         "item_id":        "diag_spatial_m",
@@ -73,7 +76,8 @@ TEST_CONFIG = {
         "quarterly": [
             {
                 "group_id":    "diag_ambient_3m",
-                "group_title": "1) การประเมินคุณภาพด้านความส่องสว่างโดยรอบ (Qualitative ambient light)",
+                "group_title":   "1) การประเมินคุณภาพด้านความส่องสว่างโดยรอบ (Qualitative ambient light)",
+                "group_title_Q": "Qualitative ambient light",
                 "items": [
                     {
                         "item_id":        "diag_amb_lum_3m",
@@ -97,7 +101,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_lum_3m",
-                "group_title": "2) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title":   "2) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title_Q": "Qualitative luminance response",
                 "items": [
                     {
                         "item_id":        "diag_lum_gradient_3m",
@@ -131,7 +136,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_spatial_3m",
-                "group_title": "3) 3.	การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title":   "3) 3.	การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title_Q": "Qualitative spatial resolution",
                 "items": [
                     {
                         "item_id":        "diag_spatial_dark_3m",
@@ -157,7 +163,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_uniformity_3m",
-                "group_title": "4) การประเมินคุณภาพด้านความสม่ำเสมอของค่า Pixel (Qualitative uniformity)",
+                "group_title":   "4) การประเมินคุณภาพด้านความสม่ำเสมอของค่า Pixel (Qualitative uniformity)",
+                "group_title_Q": "Qualitative uniformity",
                 "items": [
                     {
                         "item_id":        "diag_uniformity_3m",
@@ -181,7 +188,8 @@ TEST_CONFIG = {
         "monthly": [
             {
                 "group_id":    "diag_lum_m",
-                "group_title": "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title":   "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title_Q": "Qualitative luminance response",
                 "items": [
                     {
                         "item_id":        "diag_lum_patches_m",
@@ -207,7 +215,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_spatial_m",
-                "group_title": "2) การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title":   "2) การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title_Q": "Qualitative spatial resolution",
                 "items": [
                     {
                         "item_id":        "diag_spatial_m",
@@ -225,7 +234,8 @@ TEST_CONFIG = {
         "quarterly": [
             {
                 "group_id":    "mod_lum_3m",
-                "group_title": "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title":   "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title_Q": "Qualitative luminance response",
                 "items": [
                     {
                         "item_id":        "mod_lum_gradient_3m",
@@ -262,7 +272,8 @@ TEST_CONFIG = {
         "annual": [
             {
                 "group_id":    "mod_ambient_y",
-                "group_title": "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title":   "1) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title_Q": "Qualitative luminance response",
                 "items": [
                     {
                         "item_id":        "mod_amb_lum_y",
@@ -286,7 +297,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "mod_spatial_y",
-                "group_title": "2) การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title":   "2) การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title_Q": "Qualitative spatial resolution",
                 "items": [
                     {
                         "item_id":        "mod_spatial_dark_y",
@@ -310,7 +322,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "mod_uniformity_y",
-                "group_title": "3) การประเมินด้านความสม่ำเสมอของค่า pixel uniformity",
+                "group_title":   "3) การประเมินด้านความสม่ำเสมอของค่า pixel uniformity",
+                "group_title_Q": "pixel uniformity",
                 "items": [
                     {
                         "item_id":        "mod_uniformity_y",
@@ -334,7 +347,8 @@ TEST_CONFIG = {
         "annual": [
             {
                 "group_id":    "diag_ambient_3m",
-                "group_title": "1) การประเมินคุณภาพด้านความส่องสว่างโดยรอบ (Qualitative ambient light)",
+                "group_title":   "1) การประเมินคุณภาพด้านความส่องสว่างโดยรอบ (Qualitative ambient light)",
+                "group_title_Q": "Qualitative ambient light",
                 "items": [
                     {
                         "item_id":        "diag_amb_lum_3m",
@@ -358,7 +372,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_lum_3m",
-                "group_title": "2) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title":   "2) การประเมินคุณภาพด้านความส่องสว่าง (Qualitative luminance response)",
+                "group_title_Q": "Qualitative luminance response",
                 "items": [
                     {
                         "item_id":        "diag_lum_gradient_3m",
@@ -392,7 +407,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_spatial_3m",
-                "group_title": "3) 3.	การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title":   "3) 3.	การประเมินคุณภาพด้านความสามารถในการแยกวัตถุชิ้นเล็กออกจากกันได้ (Qualitative spatial resolution)",
+                "group_title_Q": "Qualitative spatial resolution",
                 "items": [
                     {
                         "item_id":        "diag_spatial_dark_3m",
@@ -418,7 +434,8 @@ TEST_CONFIG = {
             },
             {
                 "group_id":    "diag_uniformity_3m",
-                "group_title": "4) การประเมินคุณภาพด้านความสม่ำเสมอของค่า Pixel (Qualitative uniformity)",
+                "group_title":   "4) การประเมินคุณภาพด้านความสม่ำเสมอของค่า Pixel (Qualitative uniformity)",
+                "group_title_Q": "Qualitative uniformity",
                 "items": [
                     {
                         "item_id":        "diag_uniformity_3m",

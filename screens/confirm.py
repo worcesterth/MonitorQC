@@ -26,9 +26,9 @@ class ConfirmScreen(BaseScreen):
 
         self.info_labels: dict[str, tk.Label] = {}
         rows = [
-            ("ชื่อโรงพยาบาล :", "hospital_name"),
-            ("ชื่อผู้ประเมิน :", "evaluator_name"),
-            ("ชื่อรุ่น/รหัส/หมายเลขเครื่องที่ใช้ในการทดสอบ :", "screen_model"),
+            ("ชื่อโรงพยาบาล:", "hospital_name"),
+            ("ชื่อผู้ประเมิน:", "evaluator_name"),
+            ("หมายเลขคุรุภัณฑ์:", "screen_model"),
         ]
         for row, (lbl, key) in enumerate(rows):
             tk.Label(info, text=lbl, font=thai_font(self.fs(26)), bg=CARD_COLOR,
@@ -59,7 +59,15 @@ class ConfirmScreen(BaseScreen):
         for key, lbl in self.info_labels.items():
             lbl.configure(text=session.get(key, ""))
 
-        self.dt_lbl.configure(text=f"วันที่และเวลาในการทดสอบ : {session.get('eval_datetime', '')}")
+        import datetime
+        eval_dt_str = session.get('eval_datetime', '')
+        try:
+            dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+            display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{dt_obj.year + 543} {dt_obj.strftime('%H:%M:%S')}"
+        except Exception:
+            display_date = eval_dt_str
+
+        self.dt_lbl.configure(text=f"วันที่และเวลาในการทดสอบ: {display_date}")
 
     def _edit(self):
         self.app.show("login")

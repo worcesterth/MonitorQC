@@ -1,0 +1,39 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pillow reportlab openpyxl pyinstaller
+
+      - name: Build EXE
+        run: |
+          pyinstaller --noconfirm --onefile --windowed `
+            --name "DesktopQC" `
+            --add-data "assets;assets" `
+            --add-data "screens;screens" `
+            --add-data "reports;reports" `
+            --hidden-import "PIL._tkinter_finder" `
+            main.py
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DesktopQC-windows
+          path: dist/DesktopQC.exe

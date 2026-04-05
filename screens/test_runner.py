@@ -84,17 +84,15 @@ class TestRunnerScreen(BaseScreen):
         self.card_win.minsize(int(600 * self._s), int(360 * self._s))
         self.card_win.withdraw()
 
-        # ── แถบบนสุด: group_title_Q + badge ข้อ X/Y มุมขวาบน ───────────
-        _BAR_H = 50
-        _BW, _BH, _BR = 110, 34, 11
-
-        top_bar = tk.Frame(self.card_win, bg="#474747", height=_BAR_H)
+        # ── แถบบนสุด: ชื่อกลุ่ม + badge ข้อ X/Y มุมขวาบน ────────────
+        top_bar = tk.Frame(self.card_win, bg="#FFFFFF", height=int(46 * self._s))
         top_bar.pack(fill="x")
         top_bar.pack_propagate(False)
 
+        _BW, _BH, _BR = int(110 * self._s), int(34 * self._s), int(11 * self._s)
         self._badge_cvs = tk.Canvas(top_bar, width=_BW, height=_BH,
-                                    bg="#474747", highlightthickness=0)
-        self._badge_cvs.place(relx=1.0, rely=0.5, anchor="e", x=-10)
+                                    bg="#F4F4F4", highlightthickness=0)
+        self._badge_cvs.pack(side="right", padx=10, pady=6)
 
         def _draw_badge(text: str):
             self._badge_cvs.delete("all")
@@ -187,7 +185,7 @@ class TestRunnerScreen(BaseScreen):
         title     = item.get("title", "")
         display   = f"{title}: {criterion}" if criterion else title
         self.item_lbl.configure(text=display)
-        self.card_win.title(item.get("group_title_Q", ""))
+        self.card_win.title(item.get("group_title_Q", item.get("group_title", "")))
         self._draw_badge(f"ข้อ {idx+1}/{total}")
 
         saved = session.get("answers", {}).get(item["item_id"], {})

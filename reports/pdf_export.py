@@ -87,6 +87,14 @@ def export_history_result(ev: dict, groups: list, filepath: str, copies: int = 1
     stype  = type_map.get(ev.get("screen_type", ""), "")
     period = period_map.get(ev.get("period", ""), "")
 
+    eval_dt_str = ev.get('eval_datetime', '')
+    import datetime
+    try:
+        dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+        display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{dt_obj.year + 543} {dt_obj.strftime('%H:%M:%S')}"
+    except Exception:
+        display_date = eval_dt_str
+
     doc = SimpleDocTemplate(
         filepath, pagesize=A4,
         leftMargin=15*mm, rightMargin=15*mm,
@@ -100,7 +108,7 @@ def export_history_result(ev: dict, groups: list, filepath: str, copies: int = 1
         _p("รายงานผลการประเมินคุณภาพหน้าจอแสดงผลทางการแพทย์", size=20, bold=True, align="CENTER"),
         Spacer(1, 4*mm),
         _p(f"โรงพยาบาล: {ev.get('hospital_name','')}", size=13),
-        _p(f"จอภาพ: {stype} | รอบ: {period} | {rank_txt} | {model_txt} | ผู้ประเมิน {ev.get('evaluator_name','')} |  {ev.get('eval_datetime','')}", size=13),
+        _p(f"จอภาพ: {stype} | รอบ: {period} | {rank_txt} | {model_txt} | ผู้ประเมิน {ev.get('evaluator_name','')} |  {display_date}", size=13),
         Spacer(1, 4*mm),
     ]
 
@@ -197,7 +205,7 @@ def export_comparison(current: dict, baseline: dict, row_data: list, filepath: s
     _register()
 
     doc = SimpleDocTemplate(
-        filepath, pagesize=landscape(A4),
+        filepath, pagesize=A4,
         leftMargin=15*mm, rightMargin=15*mm,
         topMargin=15*mm, bottomMargin=15*mm,
     )
@@ -207,8 +215,24 @@ def export_comparison(current: dict, baseline: dict, row_data: list, filepath: s
     cmp_stype  = _type_map.get(current.get("screen_type", ""), current.get("screen_type", ""))
     cmp_period = _period_map.get(current.get("period", ""), current.get("period", ""))
 
-    now_txt  = f"ครั้งที่: {current.get('rank','')} |  {current.get('evaluator_name','')} | {current.get('eval_datetime','')}"
-    base_txt = f"ครั้งที่: {baseline.get('rank','')} |  {baseline.get('evaluator_name','')} | {baseline.get('eval_datetime','')}"
+    import datetime
+    
+    curr_dt_str = current.get('eval_datetime','')
+    try:
+        dt_obj = datetime.datetime.strptime(curr_dt_str, "%Y-%m-%d %H:%M:%S")
+        curr_disp_dt = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{dt_obj.year + 543} {dt_obj.strftime('%H:%M:%S')}"
+    except Exception:
+        curr_disp_dt = curr_dt_str
+        
+    base_dt_str = baseline.get('eval_datetime','')
+    try:
+        dt_obj = datetime.datetime.strptime(base_dt_str, "%Y-%m-%d %H:%M:%S")
+        base_disp_dt = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{dt_obj.year + 543} {dt_obj.strftime('%H:%M:%S')}"
+    except Exception:
+        base_disp_dt = base_dt_str
+
+    now_txt  = f"ครั้งที่: {current.get('rank','')} |  {current.get('evaluator_name','')} | {curr_disp_dt}"
+    base_txt = f"ครั้งที่ (Baseline): {baseline.get('rank','')} |  {baseline.get('evaluator_name','')} | {base_disp_dt}"
 
     story = [
         _p("รายงานการเปรียบเทียบกับผล", size=20, bold=True, align="CENTER"),
@@ -219,8 +243,8 @@ def export_comparison(current: dict, baseline: dict, row_data: list, filepath: s
         Spacer(1, 4*mm),
     ]
 
-    # landscape A4 usable ≈ 842 – 30mm = 782pt ≈ 276mm
-    col_w = [72*mm, 26*mm, 26*mm, 64*mm, 88*mm]
+    # portrait A4 usable ≈ 595 – 30mm = 510pt ≈ 180mm
+    col_w = [46*mm, 20*mm, 20*mm, 40*mm, 54*mm]
 
     TAG_FG = {
         "degraded": colors.HexColor("#cc0000"),
@@ -232,7 +256,7 @@ def export_comparison(current: dict, baseline: dict, row_data: list, filepath: s
     data = [[
         _p("หัวข้อประเมิน",                      12, bold=True),
         _p("Baseline",                            12, bold=True, align="CENTER"),
-        _p("Now",                                 12, bold=True, align="CENTER"),
+        _p("ครั้งที่",                                 12, bold=True, align="CENTER"),
         _p("ผลการเปรียบเทียบ",                   12, bold=True),
         _p("คำอธิบายเพิ่มเติมจากการเปรียบเทียบ", 12, bold=True),
     ]]

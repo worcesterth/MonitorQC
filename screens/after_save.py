@@ -42,7 +42,7 @@ class AfterSaveScreen(BaseScreen):
         field_defs = [
             ("hospital",  "ชื่อโรงพยาบาล:"),
             ("evaluator", "ชื่อผู้ประเมิน:"),
-            ("model",     "ชื่อรุ่น/ยี่ห้อ/หมายเลขจอภาพที่ใช้ในการทดสอบ:"),
+            ("model",     "หมายเลขคุรุภัณฑ์:"),
             ("datetime",  "วันที่และเวลาในการทดสอบ:"),
         ]
         self._vals: dict[str, tk.Label] = {}
@@ -64,12 +64,16 @@ class AfterSaveScreen(BaseScreen):
         btn_bar = tk.Frame(card, bg=CARD_COLOR)
         btn_bar.pack(side="bottom", fill="x", padx=16, pady=16)
 
-        self.primary_btn(btn_bar, "เกณฑ์และวิธีการแก้ไขปัญหา",
-                         self._view_results, fontsize=self.fs(26), width=20).pack(side="left", padx=4)
-        self.primary_btn(btn_bar, "ทำการเทียบกับ Baseline",
-                         self._compare, fontsize=self.fs(26), width=18).pack(side="left", padx=4)
         self.back_btn(btn_bar, "กลับหน้าหลัก",
-                      self._home, fontsize=self.fs(26), width=20).pack(side="right", padx=4)
+                      self._home, fontsize=self.fs(26), width=15).pack(side="left", padx=4)
+
+        left_btns = tk.Frame(btn_bar, bg=CARD_COLOR)
+        left_btns.pack(side="right")
+
+        self.primary_btn(left_btns, "ทำการเทียบกับ Baseline",
+                         self._compare, fontsize=self.fs(26), width=18).pack(side="right", padx=4)
+        self.primary_btn(left_btns, "เกณฑ์และวิธีการแก้ไขปัญหา",
+                         self._view_results, fontsize=self.fs(26), width=20).pack(side="right", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────────
 
@@ -96,7 +100,7 @@ class AfterSaveScreen(BaseScreen):
 
         period_map = {
             "monthly":   "การประเมินประจำเดือน",
-            "quarterly": "การประเมินราย 3 เดือน",
+            "quarterly": "การประเมินประจำ 3 เดือน",
             "annual":    "การประเมินประจำปี",
         }
         self.period_lbl.configure(
@@ -106,7 +110,16 @@ class AfterSaveScreen(BaseScreen):
         self._vals["hospital"].configure(text=session.get("hospital_name", ""))
         self._vals["evaluator"].configure(text=session.get("evaluator_name", ""))
         self._vals["model"].configure(text=session.get("screen_model", ""))
-        self._vals["datetime"].configure(text=session.get("eval_datetime", ""))
+        
+        eval_dt_str = session.get("eval_datetime", "")
+        try:
+            import datetime
+            dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+            thai_year = dt_obj.year + 543
+            display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{thai_year} {dt_obj.strftime('%H:%M:%S')}"
+        except Exception:
+            display_date = eval_dt_str
+        self._vals["datetime"].configure(text=display_date)
 
     # ── actions ───────────────────────────────────────────────────────────
 
@@ -167,7 +180,15 @@ class AfterSaveScreen(BaseScreen):
 
         # prev_evals[0] = newest, prev_evals[-1] = oldest (8th back)
         for ev in prev_evals:
-            lb.insert("end", f"ครั้งที่ {ev['rank']}:  {ev['eval_datetime']}  {ev['evaluator_name']}")
+            eval_dt_str = ev['eval_datetime']
+            try:
+                import datetime
+                dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+                thai_year = dt_obj.year + 543
+                display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{thai_year} {dt_obj.strftime('%H:%M:%S')}"
+            except Exception:
+                display_date = eval_dt_str
+            lb.insert("end", f"ครั้งที่ {ev['rank']}:  {display_date}  {ev['evaluator_name']}")
 
         # default = oldest (index len-1 = ครั้งแรกของกลุ่ม 8)
         default_idx = len(prev_evals) - 1

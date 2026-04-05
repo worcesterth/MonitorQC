@@ -292,6 +292,7 @@ def search_evaluations(
     period: str = "",
     date_from: str = "",
     date_to: str = "",
+    screen_model: str = "",
     limit: int = 200,
 ) -> list[dict]:
     """ค้นหา evaluations — คืน list of dict (ไม่รวม answers เพื่อความเร็ว)"""
@@ -304,6 +305,9 @@ def search_evaluations(
     if evaluator:
         sql  += " AND evaluator_name LIKE ?"
         args.append(f"%{evaluator}%")
+    if screen_model:
+        sql  += " AND screen_model LIKE ?"
+        args.append(f"%{screen_model}%")
     if screen_type:
         sql  += " AND screen_type=?"
         args.append(screen_type)

@@ -1,6 +1,7 @@
 import tkinter as tk
 import os, shutil, platform
-
+import os
+print("PID:", os.getpid())
 
 def _fix_windows_dpi():
     """แก้ DPI scaling บน Windows ไม่ให้ขยาย UI อัตโนมัติ"""
@@ -40,18 +41,10 @@ def _install_font():
         # โหลด font เข้า GDI (ไม่ต้องสิทธิ์ admin) เพื่อให้ tkinter เห็น
         try:
             import ctypes
-            # FR_PRIVATE (0x10) → process-private; use 0 so tkfont.families() sees it
-            ctypes.windll.gdi32.AddFontResourceExW(src, 0, 0)
-        except Exception:
-            pass
-        # พยายาม copy เข้า Windows\Fonts ด้วย (ถ้ามีสิทธิ์)
-        try:
-            font_dir = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Fonts")
-            dst = os.path.join(font_dir, "THSarabunNew.ttf")
-            if not os.path.exists(dst):
-                shutil.copy2(src, dst)
-        except Exception:
-            pass
+            # FR_PRIVATE (0x10) → process-private
+            ctypes.windll.gdi32.AddFontResourceExW(ctypes.c_wchar_p(src), 0x10, 0)
+        except Exception as e:
+            print(f"Windows font load error: {e}")
 
 
 _install_font()

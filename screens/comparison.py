@@ -35,7 +35,7 @@ CLR_NO_ANS   = "#94a3b8"   # ไม่มีข้อมูล – slate
 
 ALT_ROW      = "#f5f5f5"   # สีแถวสลับ (ขาวอมเทาอ่อน)
 
-_HEADS   = ["หัวข้อประเมิน", "Baseline", "Now",
+_HEADS   = ["หัวข้อประเมิน", "Baseline", "ครั้งที่",
             "ผลการเปรียบเทียบ", "คำอธิบายเพิ่มเติมจากการเปรียบเทียบ"]
 _WIDTHS_REF = [290, 140, 140, 320]   # reference widths at 1920×1080
 _ANCHORS = ["w", "center", "center", "w", "w"]
@@ -65,7 +65,7 @@ class ComparisonScreen(BaseScreen):
                                     bg=BG_COLOR, fg="#000000")
         self.current_lbl.pack(side="left")
 
-        self.baseline_lbl = tk.Label(meta_bar, text="", font=thai_font(self.fs(26), "bold"),
+        self.baseline_lbl = tk.Label(meta_bar, text="", font=thai_font(self.fs(26)),
                                      bg=BG_COLOR, fg="#000000")
         self.baseline_lbl.pack(side="right")
 
@@ -171,12 +171,22 @@ class ComparisonScreen(BaseScreen):
             if not eid:
                 return "-"
             return _db.get_eval_rank(ev.get("screen_type", ""), ev.get("period", ""), eid)
+            
+        def _format_dt(dt_str):
+            if not dt_str: return ""
+            try:
+                import datetime
+                dt_obj = datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                thai_year = dt_obj.year + 543
+                return f"{dt_obj.day:02d}/{dt_obj.month:02d}/{thai_year} {dt_obj.strftime('%H:%M:%S')}"
+            except Exception:
+                return dt_str
 
         self.current_lbl.configure(
-            text=f"ครั้งที่ {_rank(current)} : {current.get('hospital_name','')}  {current.get('evaluator_name','')}  {current.get('eval_datetime','')}"
+            text=f"ครั้งที่ {_rank(current)} : {current.get('hospital_name','')}  {current.get('evaluator_name','')}  {_format_dt(current.get('eval_datetime',''))}"
         )
         self.baseline_lbl.configure(
-            text=f"Baseline (ครั้งที่ {_rank(baseline)}): {baseline.get('hospital_name','')}  {baseline.get('evaluator_name','')}  {baseline.get('eval_datetime','')}"
+            text=f"Baseline (ครั้งที่ {_rank(baseline)}): {baseline.get('hospital_name','')}  {baseline.get('evaluator_name','')}  {_format_dt(baseline.get('eval_datetime',''))}"
         )
 
         screen_type = current.get("screen_type") or baseline.get("screen_type", "")

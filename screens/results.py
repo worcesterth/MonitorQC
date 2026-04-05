@@ -84,11 +84,21 @@ class ResultsScreen(BaseScreen):
 
         # info bar
         type_map   = {"diagnostic": "Diagnostic", "modality": "Modality", "clinic": "Clinical Review"}
-        period_map = {"monthly": "รายเดือน", "quarterly": "ราย 3 เดือน", "annual": "ประจำปี"}
+        period_map = {"monthly": "ประจำเดือน", "quarterly": "ประจำ 3 เดือน", "annual": "ประจำปี"}
         stype  = type_map.get(session.get("screen_type", ""), "")
         period = period_map.get(session.get("period", ""), "")
+        
+        eval_dt_str = session.get("eval_datetime", "")
+        try:
+            import datetime
+            dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+            thai_year = dt_obj.year + 543
+            display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{thai_year} {dt_obj.strftime('%H:%M:%S')}"
+        except Exception:
+            display_date = eval_dt_str
+            
         self.info_lbl.configure(
-            text=f"{session.get('hospital_name','')}  |  {session.get('evaluator_name','')}  |  {stype}  |  {period}  |  {session.get('eval_datetime','')}"
+            text=f"{session.get('hospital_name','')}  |  {session.get('evaluator_name','')}  |  {stype}  |  {period}  |  {display_date}"
         )
 
         # สร้างตาราง
