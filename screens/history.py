@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import ttk
 from screens.base import (
     BaseScreen, BG_COLOR, CARD_COLOR, TEXT_COLOR, BORDER_CLR, BTN_BG, BTN_ACTIVE, thai_font,
+    bind_treeview_tooltip,
 )
 from config import PERIOD_LABELS, SCREEN_TYPES
 import database
@@ -285,6 +286,7 @@ class HistoryScreen(BaseScreen):
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="left", fill="y")
+        bind_treeview_tooltip(self.tree)
 
         self.tree.bind("<Double-1>", self._on_double_click)
 

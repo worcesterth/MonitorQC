@@ -43,6 +43,42 @@ def thai_font(size: int = 14, weight: str = "normal") -> tuple:
     return (family, size, bold)
 
 
+def bind_treeview_tooltip(tree):
+    """แสดง tooltip ข้อความเต็มเมื่อ hover เหนือ cell ใน Treeview"""
+    tip_window = [None]
+
+    def _hide(_=None):
+        if tip_window[0]:
+            tip_window[0].destroy()
+            tip_window[0] = None
+
+    def _show(event):
+        _hide()
+        row = tree.identify_row(event.y)
+        col = tree.identify_column(event.x)
+        if not row or not col:
+            return
+        col_idx = int(col[1:]) - 1
+        cols = tree["columns"]
+        if col_idx < 0 or col_idx >= len(cols):
+            return
+        text = tree.set(row, cols[col_idx])
+        if not text:
+            return
+        tip = tk.Toplevel(tree)
+        tip.wm_overrideredirect(True)
+        tip.wm_geometry(f"+{event.x_root + 12}+{event.y_root + 16}")
+        lbl = tk.Label(tip, text=text, font=thai_font(14),
+                       bg="#ffffe0", fg="#000000", relief="solid", bd=1,
+                       wraplength=700, justify="left", padx=8, pady=6)
+        lbl.pack()
+        tip_window[0] = tip
+
+    tree.bind("<Motion>", _show)
+    tree.bind("<Leave>", _hide)
+    tree.bind("<ButtonPress>", _hide)
+
+
 def _round_rect(canvas, x1, y1, x2, y2, r, **kw):
     """วาด rounded rectangle บน Canvas ด้วย smooth polygon."""
     pts = [x1+r, y1,  x2-r, y1,

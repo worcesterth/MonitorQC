@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from screens.base import (
     BaseScreen, BG_COLOR, CARD_COLOR, TEXT_COLOR, BORDER_CLR,
-    PASS_GREEN, FAIL_RED, thai_font,
+    PASS_GREEN, FAIL_RED, thai_font, bind_treeview_tooltip,
 )
 from config import TEST_CONFIG
 
@@ -76,6 +76,7 @@ class HistoryResultScreen(BaseScreen):
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="left", fill="y")
+        bind_treeview_tooltip(self.tree)
 
         # ── bottom bar ────────────────────────────────────────────────────
         btn_bar = tk.Frame(self, bg=BG_COLOR)
