@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import platform
 import subprocess
@@ -6,9 +7,14 @@ import tkinter as tk
 from tkinter import ttk
 from screens.base import (
     BaseScreen, BG_COLOR, CARD_COLOR, TEXT_COLOR, BORDER_CLR,
-    PASS_GREEN, FAIL_RED, thai_font, bind_treeview_tooltip,
+    PASS_GREEN, FAIL_RED, thai_font,
 )
 from config import TEST_CONFIG
+
+_HEADS      = ["หัวข้อการประเมิน", "ผลการประเมิน", "หมายเหตุ"]
+_ANCHORS    = ["w", "center", "w"]
+_WIDTHS_REF = [500, 140]   # คอลัมน์สุดท้าย (หมายเหตุ) flexible
+ALT_ROW     = "#f5f5f5"
 
 
 def _send_to_printer(path: str):
@@ -31,8 +37,8 @@ class HistoryResultScreen(BaseScreen):
 
     def __init__(self, parent, app):
         super().__init__(parent, app)
+        self._widths = [int(w * self._s) for w in _WIDTHS_REF]
 
-    
         self.card_header(self, "ผลการประเมิน (ประวัติ)", size=self.fs(24))
 
         # ── info bar ──────────────────────────────────────────────────────
@@ -42,41 +48,37 @@ class HistoryResultScreen(BaseScreen):
                                   bg=BG_COLOR, fg=TEXT_COLOR)
         self.info_lbl.pack(side="left")
 
-        # ── table ─────────────────────────────────────────────────────────
-        table_frame = tk.Frame(self, bg=BG_COLOR)
-        table_frame.pack(fill="both", expand=True, padx=24, pady=(4, 12))
+        # ── table container ───────────────────────────────────────────────
+        tbl = tk.Frame(self, bg=BG_COLOR)
+        tbl.pack(fill="both", expand=True, padx=24, pady=(4, 12))
 
-        style = ttk.Style()
-        style.configure("HistRes.Treeview",
-                         font=thai_font(self.fs(26)), rowheight=max(22, int(36 * self._s)),
-                         background="#FFFFFF", fieldbackground=CARD_COLOR,
-                         foreground=TEXT_COLOR)
-        style.configure("HistRes.Treeview.Heading",
-                         font=thai_font(self.fs(26), "bold"),
-                         background="#FFFFFF", foreground=TEXT_COLOR, relief="flat")
-        style.map("HistRes.Treeview", background=[("selected", "#b0c8e8")])
+        # header row (fixed)
+        head_bar = tk.Frame(tbl, bg=BG_COLOR)
+        head_bar.pack(fill="x")
+        self._build_row(head_bar, _HEADS, "#ffffff", TEXT_COLOR,
+                        thai_font(self.fs(26), "bold"), pady=10)
+        tk.Frame(tbl, bg=BORDER_CLR, height=2).pack(fill="x")
 
-        cols = ("หัวข้อการประเมิน", "ผลการประเมิน", "หมายเหตุ")
-        self.tree = ttk.Treeview(table_frame, columns=cols,
-                                  show="headings", style="HistRes.Treeview")
-        self.tree.heading("หัวข้อการประเมิน", text="หัวข้อการประเมิน", anchor="w")
-        self.tree.heading("ผลการประเมิน",    text="ผลการประเมิน",    anchor="center")
-        self.tree.heading("หมายเหตุ",        text="หมายเหตุ",        anchor="w")
-        self.tree.column("หัวข้อการประเมิน", width=int(520 * self._s), anchor="w",    stretch=True)
-        self.tree.column("ผลการประเมิน",    width=int(140 * self._s), anchor="center", stretch=False)
-        self.tree.column("หมายเหตุ",        width=int(260 * self._s), anchor="w",    stretch=True)
+        # scrollable body
+        body_outer = tk.Frame(tbl, bg=BG_COLOR)
+        body_outer.pack(fill="both", expand=True)
 
-        self.tree.tag_configure("pass",   foreground=PASS_GREEN)
-        self.tree.tag_configure("fail",   foreground=FAIL_RED)
-        self.tree.tag_configure("group",  background="#c8c8c8", font=thai_font(self.fs(26), "bold"))
-        self.tree.tag_configure("no_ans", foreground="#888888")
+        self._canvas = tk.Canvas(body_outer, bg=CARD_COLOR, highlightthickness=0)
+        vbar = ttk.Scrollbar(body_outer, orient="vertical", command=self._canvas.yview)
+        self._canvas.configure(yscrollcommand=vbar.set)
+        self._canvas.pack(side="left", fill="both", expand=True)
+        vbar.pack(side="right", fill="y")
 
-        scrollbar = ttk.Scrollbar(table_frame, orient="vertical",
-                                   command=self.tree.yview)
-        self.tree.configure(yscrollcommand=scrollbar.set)
-        self.tree.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="left", fill="y")
-        bind_treeview_tooltip(self.tree)
+        self._body = tk.Frame(self._canvas, bg=CARD_COLOR)
+        self._win  = self._canvas.create_window((0, 0), window=self._body, anchor="nw")
+
+        self._body.bind("<Configure>",
+                        lambda _: self._canvas.configure(scrollregion=self._canvas.bbox("all")))
+        self._canvas.bind("<Configure>", self._on_canvas_resize)
+        self._canvas.bind("<MouseWheel>",
+                          lambda e: self._canvas.yview_scroll(-1 if e.delta > 0 else 1, "units"))
+
+        self._note_labels: list[tk.Label] = []
 
         # ── bottom bar ────────────────────────────────────────────────────
         btn_bar = tk.Frame(self, bg=BG_COLOR)
@@ -90,6 +92,43 @@ class HistoryResultScreen(BaseScreen):
                          self._print_result, fontsize=self.fs(26), width=10).pack(side="left", padx=4)
         self.back_btn(btn_bar, "กลับประวัติ",
                       lambda: app.show("history"), fontsize=self.fs(26), width=14).pack(side="right", padx=4)
+
+    # ── table helpers ─────────────────────────────────────────────────────
+
+    def _build_row(self, parent, values, bg, fg, font, pady=6):
+        row = tk.Frame(parent, bg=bg)
+        row.pack(fill="x")
+        for i, w in enumerate(self._widths):
+            row.columnconfigure(i, minsize=w, weight=0)
+        row.columnconfigure(len(self._widths), weight=1)
+        note_lbl = None
+        for i, (text, anchor) in enumerate(zip(values, _ANCHORS)):
+            w = self._widths[i] if i < len(self._widths) else 0
+            lbl = tk.Label(row, text=text, font=font, fg=fg, bg=bg,
+                           anchor=anchor, padx=10, pady=pady,
+                           wraplength=max(0, w - 12) if w else 0,
+                           justify="left")
+            lbl.grid(row=0, column=i, sticky="nsew")
+            if i == len(self._widths):
+                note_lbl = lbl
+        return note_lbl
+
+    def _on_canvas_resize(self, e):
+        self._canvas.itemconfig(self._win, width=e.width)
+        self._refresh_note_wrap(e.width)
+
+    def _refresh_note_wrap(self, canvas_w=None):
+        if canvas_w is None:
+            canvas_w = self._canvas.winfo_width()
+        note_w = max(80, canvas_w - sum(self._widths) - 12)
+        for lbl in self._note_labels:
+            lbl.configure(wraplength=note_w)
+
+    def _clear(self):
+        for w in self._body.winfo_children():
+            w.destroy()
+        self._note_labels.clear()
+        self._canvas.yview_moveto(0)
 
     # ── on_show ───────────────────────────────────────────────────────────
 
@@ -107,7 +146,7 @@ class HistoryResultScreen(BaseScreen):
         self._current_rank = _db.get_eval_rank(ev.get("screen_type", ""), ev.get("period", ""), ev["id"])
         rank = self._current_rank
         baseline_mark = "  ★ Baseline" if ev.get("is_baseline") else ""
-        
+
         eval_dt_str = ev.get('eval_datetime', '')
         try:
             dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
@@ -119,39 +158,51 @@ class HistoryResultScreen(BaseScreen):
             text=f"โรงพยาบาล: {ev.get('hospital_name','')}  |  ผู้ประเมิน: {ev.get('evaluator_name','')}  |  ครั้งที่ {rank}  |  ประเภท: {stype}  |  รอบ: {period}  |  วันที่: {display_date}{baseline_mark}"
         )
 
-        # rebuild table from TEST_CONFIG
-        self.tree.delete(*self.tree.get_children())
+        self._clear()
         screen_type = ev.get("screen_type", "")
         period_key  = ev.get("period", "")
-        groups = TEST_CONFIG.get(screen_type, {}).get(period_key, [])
+        groups  = TEST_CONFIG.get(screen_type, {}).get(period_key, [])
         answers = ev.get("answers", {})
+        row_idx = 0
 
         for group in groups:
-            self.tree.insert("", "end",
-                              values=(group["group_title"], "", ""),
-                              tags=("group",))
+            self._build_row(self._body,
+                            [group["group_title"], "", ""],
+                            "#BFBFBF", TEXT_COLOR,
+                            thai_font(self.fs(26), "bold"), pady=10)
+
             for item in group["items"]:
                 item_id = item["item_id"]
                 ans = answers.get(item_id)
                 if ans:
                     result_text = "ผ่าน" if ans["passed"] else "ไม่ผ่าน"
-                    tag = "pass" if ans["passed"] else "fail"
+                    fg = PASS_GREEN if ans["passed"] else FAIL_RED
                     notes = ans.get("notes", "")
                     if ans.get("failed_channels"):
                         fc = ans["failed_channels"]
                         ch_str = ", ".join(str(c) for c in fc)
                         if item.get("question_type") == "yes_no_channels_text":
-                            notes = f"จำนวนภาพที่ Pixel ไม่สม่ำเสมอ: {len(fc)} ช่อง  \nค่า Pixel ของช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
+                            notes = (f"จำนวนภาพที่ Pixel ไม่สม่ำเสมอ: {len(fc)} ช่อง\n"
+                                     f"ค่า Pixel ของช่องที่ไม่เห็น: {ch_str}") + (f"  {notes}" if notes else "")
                         else:
                             notes = f"ค่า Pixel ของช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
                 else:
                     result_text = "ไม่ได้ตอบ"
-                    tag = "no_ans"
+                    fg = "#888888"
                     notes = ""
 
-                self.tree.insert("", "end",
-                                  values=(f"  {item['title']}", result_text, notes),
-                                  tags=(tag,))
+                row_bg = CARD_COLOR if row_idx % 2 == 0 else ALT_ROW
+                row_idx += 1
+                note_lbl = self._build_row(self._body,
+                                           [f"  {item['title']}", result_text, notes],
+                                           row_bg, fg, thai_font(self.fs(26)), pady=8)
+                if note_lbl:
+                    self._note_labels.append(note_lbl)
+
+        self.update_idletasks()
+        self._canvas.configure(scrollregion=self._canvas.bbox("all"))
+        self._canvas.yview_moveto(0)
+        self.after(10, self._refresh_note_wrap)
 
     # ── actions ───────────────────────────────────────────────────────────
 
