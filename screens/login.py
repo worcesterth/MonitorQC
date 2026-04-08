@@ -35,6 +35,9 @@ class LoginScreen(BaseScreen):
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=36, pady=20)
 
+        self._period_bar = tk.Frame(body, height=10)
+        self._period_bar.pack(fill="x", pady=(0, 6))
+
         self.title_lbl = tk.Label(body, text="", font=thai_font(self.fs(16), "bold"),
                                   bg=CARD_COLOR, fg=TEXT_COLOR)
         self.title_lbl.pack(anchor="w", pady=(0, 4))
@@ -104,6 +107,9 @@ class LoginScreen(BaseScreen):
         period_lbl = PERIOD_LABELS.get(period, period)
         type_map = {"diagnostic": "Diagnostic", "modality": "Modality",
                     "clinic": "Clinical Review"}
+        period_colors = {"monthly": "#3b82f6", "quarterly": "#16a34a", "annual": "#f97316"}
+        bar_color = period_colors.get(period, "#888888")
+        self._period_bar.configure(bg=bar_color)
         self.title_lbl.configure(
             text=f"{period_lbl} ({type_map.get(screen_type, '')})", font=thai_font(self.fs(40)))
 

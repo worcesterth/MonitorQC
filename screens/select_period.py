@@ -28,13 +28,21 @@ class SelectPeriodScreen(BaseScreen):
 
         self.title_label(self.body, "โปรดเลือกรูปแบบการประเมิน", size=self.fs(50)).pack(pady=(40, 50))
 
+        period_colors = {
+            "monthly":   ("#3b82f6", "#2563eb"),
+            "quarterly": ("#16a34a", "#15803d"),
+            "annual":    ("#f97316", "#ea6c0a"),
+        }
+
         for period in periods:
             label = PERIOD_LABELS.get(period, period)
+            bg, active = period_colors.get(period, ("#FD9E50", "#e08840"))
             self.primary_btn(
                 self.body, label,
                 command=lambda p=period: self._select(p),
                 fontsize=self.fs(26), padx=20, pady=6,
                 width=30,
+                btn_bg=bg, btn_fg="#ffffff", btn_active=active,
             ).pack(pady=10)
 
     def _select(self, period: str):
