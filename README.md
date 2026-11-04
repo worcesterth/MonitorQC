@@ -1,6 +1,25 @@
-# MonitorQC — ระบบประกันคุณภาพจอภาพทางการแพทย์ (TG-270 Monitor QC System)
+# TG270 Monitor QC System
 
-โปรแกรม Monitor QC สำหรับประเมินคุณภาพจอภาพทางการแพทย์ตามมาตรฐาน **TG-270** รองรับ 4 ชนิดหน้าจอ ครอบคลุมทุกรอบการประเมิน บันทึกผลลงฐานข้อมูล และสร้างรายงาน PDF/Excel
+ระบบประเมินคุณภาพจอภาพทางการแพทย์ตามมาตรฐาน **AAPM TG-270** รองรับ 4 ชนิดหน้าจอ ครอบคลุมทุกรอบการประเมิน บันทึกผลลงฐานข้อมูล และสร้างรายงาน PDF/Excel
+
+**ภาควิชารังสีเทคนิค คณะสหเวชศาสตร์ มหาวิทยาลัยนเรศวร**
+
+---
+
+## ทีมผู้พัฒนา
+
+**ที่ปรึกษา**
+- ผู้ช่วยศาสตราจารย์ ดร.ธัญรัตน์ ชูศิลป์
+- ผู้ช่วยศาสตราจารย์ ดร.สุธาสินี ฉิมเล็ก
+
+**ผู้พัฒนาระบบ**
+- นางสาวชำนิกานต์ แก้วนา
+- นายภาณุวิชญ์ จันเสนา
+- นายณัฐวุฒิ โรจน์บุณถึง
+- นายอธิวัฒน์ ยศปัญญา
+- นางสาววรฤทัย มหาวงษ์
+
+**ติดต่อ:** thunyarutc@nu.ac.th · chumnikarnk66@nu.ac.th · panuwitj66@nu.ac.th
 
 ---
 
@@ -11,7 +30,8 @@
 | ภาษา | Python 3.11 |
 | GUI | Tkinter (built-in) |
 | รูปภาพ | Pillow (PIL) |
-| PDF | ReportLab + THSarabunNew.ttf |
+| PDF รายงาน | ReportLab + THSarabunNew.ttf |
+| PDF คู่มือ | Playwright (Chromium) + pypdf |
 | Excel | openpyxl |
 | ฐานข้อมูล | SQLite (`data/screenqc.db`) |
 | Build | PyInstaller (onefile) — Windows EXE & macOS .app |
@@ -34,7 +54,7 @@ python main.py
 ## โครงสร้างไฟล์
 
 ```
-MonitorQC/
+Desktop1QC/
 ├── main.py              # Entry point — ติดตั้งฟอนต์ไทย, สร้าง Tk window, ลงทะเบียน screens
 ├── config.py            # TEST_CONFIG, SCREEN_TYPES, PERIODS, PERIOD_LABELS
 ├── database.py          # SQLite ORM-like: init_db, users, evaluations, answers
@@ -42,8 +62,8 @@ MonitorQC/
 │
 ├── screens/
 │   ├── base.py          # BaseScreen, color constants, thai_font(), rich_label(), helpers
-│   ├── home.py          # หน้าแรก (โลโก้ + ปุ่มนำทาง)
-│   ├── select_type.py   # เลือกชนิดหน้าจอ
+│   ├── home.py          # หน้าแรก (โลโก้ + ปุ่มนำทาง + popup ทีมผู้พัฒนา/เอกสารอ้างอิง)
+│   ├── select_type.py   # เลือกชนิดหน้าจอ (4 แบบ พร้อมรูปและ popup นิยาม)
 │   ├── select_period.py # เลือกรอบการประเมิน (พร้อม color bar แสดงสี period)
 │   ├── login.py         # ล็อกอิน + แสดงข้อมูลโรงพยาบาล/หน้าจอ (color bar ตาม period)
 │   ├── confirm.py       # ยืนยัน metadata ก่อนเริ่มทดสอบ (color bar ตาม period)
@@ -60,11 +80,19 @@ MonitorQC/
 │
 ├── assets/
 │   ├── fonts/THSarabunNew.ttf   # ฟอนต์ไทย (bundled)
-│   ├── logo/                    # โลโก้แอป (.png, .icns, .ico)
+│   ├── logo/                    # โลโก้แอปและโลโก้มหาวิทยาลัย (.png, .icns, .ico)
+│   ├── display/                 # รูปประกอบชนิดหน้าจอ 4 แบบ
 │   └── test_patterns/           # รูปแบบทดสอบ (PNG/TIFF)
 │
 ├── reports/
-│   └── pdf_export.py    # สร้าง PDF ด้วย ReportLab (landscape A4)
+│   └── pdf_export.py    # สร้าง PDF รายงานการประเมินด้วย ReportLab (landscape A4)
+│
+├── manual/
+│   ├── manual.md        # ต้นฉบับคู่มือภาษาไทย (Markdown)
+│   ├── build_custom.py  # สร้าง PDF คู่มือ (Playwright + NU branding สี #F58220/#A7A9AC)
+│   ├── capture_screens.py # แคปภาพหน้าจอแอปจริงสำหรับคู่มือ (PIL ImageGrab)
+│   ├── shots/           # ภาพหน้าจอ 11 รูป (01-home.png ถึง 11-history-result.png)
+│   └── คู่มือการใช้งาน-TG270.pdf  # PDF คู่มือ 22 หน้า
 │
 ├── scripts/
 │   └── create_ico.py    # แปลง PNG → ICO สำหรับ Windows
@@ -80,10 +108,10 @@ MonitorQC/
 ### ชนิดหน้าจอ (`SCREEN_TYPES`)
 | key | ความหมาย |
 |-----|----------|
-| `diagnostic` | หน้าจอชนิดใช้วินิจฉัยทางการแพทย์ (Diagnostic) |
-| `modality` | หน้าจอชนิดใช้แสดงทางการแพทย์ (Modality) |
-| `clinic` | หน้าจอตรวจทานทางการแพทย์ (Clinical Review) |
-| `ehr` | หน้าจอระบบเวชระเบียนอิเล็กทรอนิกส์ (Electronic Health Record) |
+| `diagnostic` | หน้าจอชนิดใช้วินิจฉัยทางการแพทย์ (Diagnostic display) |
+| `modality` | หน้าจอชนิดใช้แสดงทางการแพทย์ (Modality display) |
+| `clinic` | หน้าจอตรวจทานทางการแพทย์ (Clinical Review display) |
+| `ehr` | หน้าจอสำหรับงานเวชระเบียน (Electronic Health Record) |
 
 ### รอบการประเมิน (`PERIODS`)
 | ชนิดหน้าจอ | รอบที่รองรับ |
@@ -98,17 +126,15 @@ MonitorQC/
 {
     "item_id":        "diag_lum_patches_m",      # unique ID สำหรับบันทึก DB
     "title":          "1.1) การประเมิน...",       # หัวข้อที่แสดงในหน้าทดสอบ
-    "criteria_title": "1.1) ...",                 # หัวข้อที่แสดงในหน้าเปรียบเทียบ (comparison)
+    "criteria_title": "1.1) ...",                 # หัวข้อที่แสดงในหน้า comparison
     "image_index":    1,                           # ชี้ไปยัง assets/test_patterns/
-    "question_type":  "yes_no",                   # "yes_no" หรือ "yes_no_channels" หรือ "yes_no_channels_text"
+    "question_type":  "yes_no",                   # ดูตารางด้านล่าง
     "total_channels": 18,                          # (เฉพาะ yes_no_channels)
     "pass_criterion": "...",                       # เกณฑ์ผ่าน (รองรับ <u>text</u>)
     "fix_guide":      "...",                       # วิธีแก้ไขกรณีไม่ผ่าน
     "cmp_drift":      "A",                         # A หรือ B (ประเภทการเปรียบเทียบ)
 }
 ```
-
-**Markup รองรับใน `pass_criterion`:** `<u>ข้อความ</u>` → แสดงขีดเส้นใต้ในหน้า criteria
 
 **`question_type` ที่รองรับ:**
 | ค่า | การแสดงผล |
@@ -145,18 +171,18 @@ CREATE TABLE evaluations (
     screen_model    TEXT    NOT NULL,
     screen_type     TEXT    NOT NULL,  -- diagnostic / modality / clinic / ehr
     period          TEXT    NOT NULL,  -- monthly / quarterly / annual
-    eval_datetime   TEXT    NOT NULL,  -- "DD/MM/YYYY HH:MM"
+    eval_datetime   TEXT    NOT NULL,
     overall_pass    INTEGER NOT NULL,  -- 1=ผ่าน, 0=ไม่ผ่าน
-    is_baseline     INTEGER NOT NULL DEFAULT 0  -- 1=กำหนดเป็น baseline
+    is_baseline     INTEGER NOT NULL DEFAULT 0
 );
 
 -- คำตอบรายข้อ
 CREATE TABLE answers (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     evaluation_id   INTEGER NOT NULL REFERENCES evaluations(id),
-    item_id         TEXT    NOT NULL,  -- ตรงกับ config item_id
-    passed          INTEGER NOT NULL,  -- 1=ผ่าน, 0=ไม่ผ่าน
-    failed_channels TEXT    NOT NULL DEFAULT '[]',  -- JSON array ช่องที่ไม่ผ่าน
+    item_id         TEXT    NOT NULL,
+    passed          INTEGER NOT NULL,
+    failed_channels TEXT    NOT NULL DEFAULT '[]',  -- JSON array
     notes           TEXT    NOT NULL DEFAULT ''
 );
 ```
@@ -168,7 +194,7 @@ CREATE TABLE answers (
 
 ---
 
-## Flow การทำงาน (User Journey)
+## Flow การทำงาน
 
 ```
 home → select_type → select_period → login → confirm → instructions
@@ -177,16 +203,6 @@ home → select_type → select_period → login → confirm → instructions
               [comparison / criteria / history / history_result]
 ```
 
-1. **home** — เลือกเริ่มประเมิน หรือดูประวัติ หรือจัดการผู้ใช้
-2. **select_type** — เลือกชนิดหน้าจอ (4 แบบ)
-3. **select_period** — เลือกรอบ (แสดง color bar ตาม period)
-4. **login** — ใส่รหัสผ่าน (แสดง color bar ตาม period)
-5. **confirm** — ยืนยันข้อมูลก่อนเริ่ม (แสดง color bar ตาม period)
-6. **instructions** — อ่านคำแนะนำ
-7. **test_runner** — ทำข้อสอบทีละข้อ (แสดงรูป + ตอบคำถาม)
-8. **results** — ดูผล pass/fail รายข้อ
-9. **after_save** — บันทึก DB, เลือกตั้ง baseline, พิมพ์, ดูเกณฑ์
-
 ---
 
 ## ฟีเจอร์สำคัญ
@@ -194,32 +210,18 @@ home → select_type → select_period → login → confirm → instructions
 | ฟีเจอร์ | รายละเอียด |
 |---------|-----------|
 | **Multi-user** | หลายผู้ใช้ มี password; จัดการผ่าน user_list screen |
-| **Test runner** | แสดง test pattern PNG/TIFF, slider เลือก frame, ตอบ yes/no |
-| **Channel tracking** | บันทึกช่องที่ fail ด้วย JSON array ใน DB (checkbox หรือ text input) |
+| **Test runner** | แสดง test pattern PNG/TIFF, pre-cache frames, ตอบ yes/no |
+| **Channel tracking** | บันทึกช่องที่ fail ด้วย JSON array (checkbox หรือ text input) |
 | **Range input** | ระบุช่อง fail แบบช่วงได้ เช่น `2-23, 34, 40-42, 55` |
 | **Baseline** | กำหนดผลการประเมินใดก็ได้เป็น baseline สำหรับเปรียบเทียบ |
 | **Comparison** | เทียบผลปัจจุบัน vs baseline ทีละข้อ แยก drift A/B |
 | **History** | ค้นหาประวัติด้วย date range + ชนิดหน้าจอ filter |
 | **PDF report** | สร้าง PDF landscape A4 ด้วย ReportLab + ฟอนต์ไทย |
 | **Excel export** | export ผลเป็น .xlsx ด้วย openpyxl |
-| **Rich text** | `<u>text</u>` ใน pass_criterion → ขีดเส้นใต้ในหน้า criteria |
 | **Canvas table** | results & history_result ใช้ Canvas-based table (text wrap) |
 | **Responsive UI** | scale ทุก font/size จาก reference 1920×1080 |
-| **Period color bar** | select_period, login, confirm แสดงแถบสีตาม period (น้ำเงิน/เขียว/ส้ม) |
-
----
-
-## screens/base.py — Utilities สำคัญ
-
-| Function/Class | ใช้ทำอะไร |
-|---------------|----------|
-| `thai_font(size, weight)` | คืน tuple font ที่ถูกต้องตาม OS (macOS/Windows/Linux) |
-| `rich_label(parent, text, ...)` | สร้าง Label ธรรมดา หรือ Text widget (กรณีมี `<u>`) |
-| `strip_markup(text)` | ลบ `<u>` tags ออก (ใช้ใน test_runner ที่เป็น plain Label) |
-| `bind_treeview_tooltip(tree)` | แสดง tooltip ข้อความเต็มเมื่อ hover Treeview |
-| `BaseScreen.primary_btn()` | ปุ่มสีส้มมาตรฐาน |
-| `BaseScreen.card_header()` | header แถบสีเข้มบน card |
-| `BaseScreen.confirm_dialog()` | dialog ยืนยัน yes/no |
+| **Period color bar** | select_period, login, confirm แสดงแถบสีตาม period |
+| **คู่มือ PDF** | คู่มือภาษาไทย 22 หน้า พร้อมภาพหน้าจอจริง (NU branding) |
 
 ---
 
@@ -241,19 +243,9 @@ GitHub Actions build อัตโนมัติทุก push to main → ส�
 
 ---
 
-## สิ่งที่เคยแก้ไขในโปรเจกต์นี้
+## เอกสารอ้างอิง
 
-| การเปลี่ยนแปลง | ไฟล์ที่เกี่ยวข้อง |
-|---------------|----------------|
-| เพิ่ม EHR เป็นชนิดหน้าจอแยกต่างหาก (annual, item IDs ขึ้นต้นด้วย `ehr_`) | `config.py`, `screens/login.py`, `screens/confirm.py`, `screens/history.py` |
-| เพิ่มฟิลด์ `criteria_title` ในทุก config item สำหรับแสดงในหน้า comparison | `config.py`, `screens/comparison.py` |
-| รองรับ range input ในช่อง uniformity (เช่น `2-23, 34, 40-42`) | `screens/test_runner.py` |
-| แก้ `image_index` ถูก override ด้วย sequential counter ใน instructions.py | `screens/instructions.py` |
-| เพิ่ม color bar ตาม period ใน confirm screen (เหมือน login) | `screens/confirm.py` |
-| เพิ่ม color bar ใน login screen และปุ่ม period มีสี | `screens/login.py`, `screens/select_period.py` |
-| เปลี่ยน Treeview เป็น Canvas-based table (รองรับ text wrap) | `screens/results.py`, `screens/history_result.py` |
-| เพิ่ม tooltip แสดงข้อความเต็มเมื่อ hover ใน Treeview | `screens/base.py` |
-| รองรับ `<u>text</u>` markup ใน pass_criterion (ขีดเส้นใต้) | `screens/base.py`, `screens/criteria.py`, `screens/test_runner.py` |
-| แก้ Windows build เป็น onefile | `.github/workflows/build.yml` |
-| อัปเกรด GitHub Actions เป็น Node.js 24 compatible | `.github/workflows/build.yml` |
-| เปลี่ยนชื่อ build artifact จาก DesktopQC เป็น MonitorQC | `.github/workflows/build.yml` |
+1. Bevins NB, Badano A, et al. *Display Quality Assurance — The Report of AAPM Task Group 270.* AAPM, 2019. https://www.aapm.org/pubs/reports/RPT_270.pdf
+2. IAEA. *IAEA Human Health Series No. 47 — Handbook of Basic Quality Control Tests for Diagnostic Radiology.* Vienna, 2023.
+3. กรมวิทยาศาสตร์การแพทย์. *การควบคุมคุณภาพเครื่องเอกซเรย์วินิจฉัยทางการแพทย์.* นนทบุรี, 2022.
+4. ACR-AAPM-SIIM. *Technical Standard for Electronic Practice of Medical Imaging.* Reston (VA): ACR, 2022.
